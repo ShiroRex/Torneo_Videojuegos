@@ -192,20 +192,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  let searchTimer = null;
   inputSearchJugador?.addEventListener('input', () => {
-    const query = inputSearchJugador.value.trim().toLowerCase();
+    const query = inputSearchJugador.value.trim();
     if (!query) {
-      renderPlayersView(jugadores);
+      loadInitialData();
       return;
     }
 
-    const filtered = jugadores.filter(j => {
-      const matchNombre = j.nombre ? j.nombre.toLowerCase().includes(query) : false;
-      const matchGamertag = j.gamertag ? j.gamertag.toLowerCase().includes(query) : false;
-      return matchNombre || matchGamertag;
-    });
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(async () => {
+      try {
+        const res = await fetch(`http://localhost:3000/api/jugadores/buscar?q=${encodeURIComponent(query)}`);
+        if (res.ok) {
+          const data = await res.json();
+          renderPlayersView(data);
+          return;
+        }
+      } catch (err) {}
 
-    renderPlayersView(filtered);
+      const qLower = query.toLowerCase();
+      const filtered = jugadores.filter(j => {
+        const matchNombre = j.nombre ? j.nombre.toLowerCase().includes(qLower) : false;
+        const matchGamertag = j.gamertag ? j.gamertag.toLowerCase().includes(qLower) : false;
+        return matchNombre || matchGamertag;
+      });
+      renderPlayersView(filtered);
+    }, 150);
   });
 
   formJugador?.addEventListener('submit', async (e) => {
@@ -235,8 +248,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    let nuevoId = Date.now();
-
     try {
       const response = await fetch('http://localhost:3000/api/jugadores', {
         method: 'POST',
@@ -251,24 +262,13 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      if (resData.id) {
-        nuevoId = resData.id;
-      }
-    } catch (err) {}
-
-    const nuevoJugador = {
-      id: nuevoId,
-      nombre,
-      gamertag,
-      correo,
-      fecha_registro: new Date().toISOString()
-    };
-
-    jugadores.push(nuevoJugador);
-    formJugador.reset();
-    closeModal();
-    window.showToast(`Jugador ${gamertag} registrado con éxito.`, 'success');
-    renderAll();
+      await loadInitialData();
+      formJugador.reset();
+      closeModal();
+      window.showToast(`Jugador ${gamertag} guardado en MySQL con éxito.`, 'success');
+    } catch (err) {
+      window.showToast('Error de conexión: El backend no está encendido en http://localhost:3000. Inícialo con "node backend/index.js".', 'error');
+    }
   });
 
   formVideojuego?.addEventListener('submit', (e) => {
@@ -372,7 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const res = await fetch('http://localhost:3000/api/jugadores');
       if (res.ok) {
         const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(data)) {
           jugadores = data;
         }
       }
