@@ -20,7 +20,7 @@ exports.crearJugador = async (req, res) => {
       id: result.insertId
     });
   } catch (error) {
-    // Control de gamertag duplicado (evaluación de la rúbrica)
+    // Control de gamertag duplicado
     if (error.code === 'ER_DUP_ENTRY') {
       return res.status(400).json({
         error: 'El Gamertag ya se encuentra registrado'
