@@ -29,6 +29,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const hintPuntuacionVideojuego = document.getElementById('puntuacion-videojuego-hint');
   const btnSubmitPuntuacion = document.getElementById('btn-submit-puntuacion');
 
+  const statsContainer = document.getElementById('stats-container');
+  const rankingContainer = document.getElementById('ranking-container');
+  const playersTableContainer = document.getElementById('players-table-container');
+  const inputSearchJugador = document.getElementById('input-search-jugador');
+  const searchResultsCounter = document.getElementById('search-results-counter');
+
   let jugadores = [];
   let videojuegos = [];
   let puntuaciones = [];
@@ -49,6 +55,50 @@ document.addEventListener('DOMContentLoaded', () => {
       switchTab(btn.dataset.tab);
     });
   });
+
+  function calculateStats() {
+    const totalJugadores = jugadores.length;
+    const totalVideojuegos = videojuegos.length;
+    const totalPuntuaciones = puntuaciones.length;
+    const sumaPuntuaciones = puntuaciones.reduce((acc, curr) => acc + curr.puntuacion, 0);
+    const promedioPuntuacion = totalPuntuaciones === 0 ? '0' : (sumaPuntuaciones / totalPuntuaciones).toFixed(1);
+
+    return {
+      totalJugadores,
+      totalVideojuegos,
+      totalPuntuaciones,
+      promedioPuntuacion
+    };
+  }
+
+  function renderStatsView() {
+    if (!statsContainer || !window.Components) return;
+    const stats = calculateStats();
+    statsContainer.innerHTML = window.Components.renderStats(stats);
+  }
+
+  function renderRankingView() {
+    if (!rankingContainer || !window.Components) return;
+    rankingContainer.innerHTML = window.Components.renderRankingTable(puntuaciones, jugadores, videojuegos);
+  }
+
+  function renderPlayersView(listToRender) {
+    if (!playersTableContainer || !window.Components) return;
+    const list = listToRender !== undefined ? listToRender : jugadores;
+    playersTableContainer.innerHTML = window.Components.renderPlayersTable(list);
+
+    if (searchResultsCounter) {
+      const cantidad = list.length;
+      searchResultsCounter.textContent = `${cantidad} ${cantidad === 1 ? 'jugador encontrado' : 'jugadores encontrados'}`;
+    }
+  }
+
+  function renderAll() {
+    renderStatsView();
+    renderRankingView();
+    renderPlayersView();
+    updateScoreSelects();
+  }
 
   function updateScoreSelects() {
     if (!selectPuntuacionJugador || !selectPuntuacionVideojuego) return;
@@ -142,7 +192,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  formJugador?.addEventListener('submit', (e) => {
+  inputSearchJugador?.addEventListener('input', () => {
+    const query = inputSearchJugador.value.trim().toLowerCase();
+    if (!query) {
+      renderPlayersView(jugadores);
+      return;
+    }
+
+    const filtered = jugadores.filter(j => {
+      const matchNombre = j.nombre ? j.nombre.toLowerCase().includes(query) : false;
+      const matchGamertag = j.gamertag ? j.gamertag.toLowerCase().includes(query) : false;
+      return matchNombre || matchGamertag;
+    });
+
+    renderPlayersView(filtered);
+  });
+
+  formJugador?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const nombreInput = document.getElementById('jugador-nombre');
     const gamertagInput = document.getElementById('jugador-gamertag');
@@ -169,8 +235,29 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    let nuevoId = Date.now();
+
+    try {
+      const response = await fetch('http://localhost:3000/api/jugadores', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre, gamertag, correo })
+      });
+
+      const resData = await response.json();
+
+      if (!response.ok) {
+        window.showToast(resData.error || 'Error al registrar jugador en el servidor.', 'error');
+        return;
+      }
+
+      if (resData.id) {
+        nuevoId = resData.id;
+      }
+    } catch (err) {}
+
     const nuevoJugador = {
-      id: Date.now(),
+      id: nuevoId,
       nombre,
       gamertag,
       correo,
@@ -181,6 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
     formJugador.reset();
     closeModal();
     window.showToast(`Jugador ${gamertag} registrado con éxito.`, 'success');
+    renderAll();
   });
 
   formVideojuego?.addEventListener('submit', (e) => {
@@ -215,6 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
     wrapperGeneroOtro?.classList.add('hidden');
     closeModal();
     window.showToast(`Videojuego ${nombre} registrado con éxito.`, 'success');
+    renderAll();
   });
 
   formPuntuacion?.addEventListener('submit', (e) => {
@@ -247,6 +336,8 @@ document.addEventListener('DOMContentLoaded', () => {
       id: Date.now(),
       jugador_id: jugador.id,
       videojuego_id: videojuego.id,
+      gamertag: jugador.gamertag,
+      videojuego: videojuego.nombre,
       puntuacion: puntuacionNum,
       fecha: new Date().toISOString()
     };
@@ -255,6 +346,7 @@ document.addEventListener('DOMContentLoaded', () => {
     formPuntuacion.reset();
     closeModal();
     window.showToast(`Puntuación de ${puntuacionNum} para ${jugador.gamertag} guardada con éxito.`, 'success');
+    renderAll();
   });
 
   window.showToast = function (message, type = 'info') {
@@ -274,4 +366,19 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => toast.remove(), 200);
     }, 3500);
   };
+
+  async function loadInitialData() {
+    try {
+      const res = await fetch('http://localhost:3000/api/jugadores');
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          jugadores = data;
+        }
+      }
+    } catch (err) {}
+    renderAll();
+  }
+
+  loadInitialData();
 });
