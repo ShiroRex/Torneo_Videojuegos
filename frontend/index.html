@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="UTorneos - Plataforma de gestión de torneos de videojuegos, jugadores, puntuaciones y clasificaciones.">
+  <title>UTorneos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <header class="app-header">
+    <div class="header-content">
+      <div class="brand">
+        <img src="assets/images/icon.webp" alt="Logo" class="brand-icon">
+        <span class="brand-title">UTorneos</span>
+      </div>
+
+      <nav class="nav-tabs" aria-label="Navegación principal">
+        <button type="button" class="tab-btn active" data-tab="dashboard">
+          <i class="fa-solid fa-chart-simple tab-icon"></i>
+          <span>Dashboard</span>
+        </button>
+        <button type="button" class="tab-btn" data-tab="registros">
+          <i class="fa-solid fa-pen-to-square tab-icon"></i>
+          <span>Registros</span>
+        </button>
+        <button type="button" class="tab-btn" data-tab="consultas">
+          <i class="fa-solid fa-magnifying-glass tab-icon"></i>
+          <span>Consultas y Búsqueda</span>
+        </button>
+      </nav>
+
+      <div class="quick-actions">
+        <button type="button" id="btn-open-modal-jugador" class="btn btn-secondary btn-sm">
+          <i class="fa-solid fa-plus"></i> Jugador
+        </button>
+        <button type="button" id="btn-open-modal-videojuego" class="btn btn-secondary btn-sm">
+          <i class="fa-solid fa-plus"></i> Videojuego
+        </button>
+        <button type="button" id="btn-open-modal-puntuacion" class="btn btn-primary btn-sm">
+          <i class="fa-solid fa-plus"></i> Puntuación
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <section id="view-dashboard" class="tab-view active">
+      <div class="view-header">
+        <h2>Dashboard</h2>
+        <p class="view-description">Resumen de métricas y tabla de clasificación general.</p>
+      </div>
+
+      <div id="stats-container" class="stats-grid"></div>
+
+      <div class="card ranking-card">
+        <div class="card-header">
+          <h3 class="card-title">Clasificación General</h3>
+          <span class="badge">Ranking</span>
+        </div>
+        <div id="ranking-container" class="table-responsive"></div>
+      </div>
+    </section>
+
+    <section id="view-registros" class="tab-view">
+      <div class="view-header">
+        <h2>Registros</h2>
+        <p class="view-description">Administración de jugadores, videojuegos y registro de puntuaciones.</p>
+      </div>
+
+      <div class="registros-shortcuts-grid">
+        <div class="shortcut-card">
+          <div class="shortcut-icon-box">
+            <i class="fa-solid fa-user"></i>
+          </div>
+          <h3>Jugadores</h3>
+          <p>Registro de participantes con nombre, gamertag único y correo.</p>
+          <button type="button" class="btn btn-secondary btn-block" data-open-modal="modal-jugador">Registrar Jugador</button>
+        </div>
+
+        <div class="shortcut-card">
+          <div class="shortcut-icon-box">
+            <i class="fa-solid fa-gamepad"></i>
+          </div>
+          <h3>Videojuegos</h3>
+          <p>Registro de títulos competitivos con nombre único y género.</p>
+          <button type="button" class="btn btn-secondary btn-block" data-open-modal="modal-videojuego">Registrar Videojuego</button>
+        </div>
+
+        <div class="shortcut-card">
+          <div class="shortcut-icon-box">
+            <i class="fa-solid fa-trophy"></i>
+          </div>
+          <h3>Puntuaciones</h3>
+          <p>Asociación de puntuaciones válidas entre jugadores y videojuegos.</p>
+          <button type="button" class="btn btn-primary btn-block" data-open-modal="modal-puntuacion">Registrar Puntuación</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-consultas" class="tab-view">
+      <div class="view-header">
+        <h2>Consultas</h2>
+        <p class="view-description">Búsqueda y consulta detallada del padrón de jugadores.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-toolbar">
+          <div class="search-wrapper">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" id="input-search-jugador" class="input-control" placeholder="Buscar por Nombre o Gamertag...">
+          </div>
+          <span id="search-results-counter" class="counter-label">0 resultados</span>
+        </div>
+        <div id="players-table-container" class="table-responsive"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="modal-overlay" class="modal-overlay hidden">
+    <div id="modal-jugador" class="modal-dialog hidden" role="dialog" aria-labelledby="modal-jugador-title" aria-modal="true">
+      <div class="modal-header">
+        <h3 id="modal-jugador-title">Registrar Jugador</h3>
+        <button type="button" class="btn-close-modal" aria-label="Cerrar modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body"></div>
+    </div>
+
+    <div id="modal-videojuego" class="modal-dialog hidden" role="dialog" aria-labelledby="modal-videojuego-title" aria-modal="true">
+      <div class="modal-header">
+        <h3 id="modal-videojuego-title">Registrar Videojuego</h3>
+        <button type="button" class="btn-close-modal" aria-label="Cerrar modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body"></div>
+    </div>
+
+    <div id="modal-puntuacion" class="modal-dialog hidden" role="dialog" aria-labelledby="modal-puntuacion-title" aria-modal="true">
+      <div class="modal-header">
+        <h3 id="modal-puntuacion-title">Registrar Puntuación</h3>
+        <button type="button" class="btn-close-modal" aria-label="Cerrar modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body"></div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    <span>UTorneos</span>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/components.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
