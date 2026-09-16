@@ -35,12 +35,15 @@ const Components = {
     `;
   },
 
-  renderRankingTable(rankingData) {
+  renderRankingTable(rankingData, filterName = '') {
     if (!rankingData || rankingData.length === 0) {
+      const emptyMessage = filterName
+        ? `No hay puntuaciones registradas para ${filterName}.`
+        : 'Aún no hay puntuaciones registradas en el torneo.';
       return `
         <div class="empty-state">
           <i class="fa-solid fa-trophy"></i>
-          <p>Aún no hay puntuaciones registradas en el torneo.</p>
+          <p>${emptyMessage}</p>
         </div>
       `;
     }

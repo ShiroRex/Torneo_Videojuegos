@@ -61,8 +61,16 @@
 
       <div class="card ranking-card">
         <div class="card-header">
-          <h3 class="card-title">Clasificación General</h3>
-          <span class="badge">Ranking</span>
+          <div class="ranking-header-title">
+            <h3 class="card-title">Clasificación General</h3>
+            <span class="badge" id="ranking-badge">Ranking Global</span>
+          </div>
+          <div class="ranking-filter-wrapper">
+            <label for="filter-ranking-videojuego" class="filter-label"><i class="fa-solid fa-filter"></i> Filtrar:</label>
+            <select id="filter-ranking-videojuego" class="select-control select-sm">
+              <option value="">Todos los videojuegos</option>
+            </select>
+          </div>
         </div>
         <div id="ranking-container" class="table-responsive"></div>
       </div>

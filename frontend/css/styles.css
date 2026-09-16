@@ -245,6 +245,35 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.ranking-header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.ranking-filter-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-label {
+  font-size: 0.775rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.select-sm {
+  padding: 0.35rem 0.65rem;
+  font-size: 0.775rem;
+  min-width: 170px;
 }
 
 .card-title {

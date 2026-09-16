@@ -37,6 +37,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const playersTableContainer = document.getElementById('players-table-container');
   const inputSearchJugador = document.getElementById('input-search-jugador');
   const searchResultsCounter = document.getElementById('search-results-counter');
+  const filterRankingVideojuego = document.getElementById('filter-ranking-videojuego');
+  const rankingBadge = document.getElementById('ranking-badge');
 
   let jugadores = [];
   let videojuegos = [];
@@ -70,9 +72,49 @@ document.addEventListener('DOMContentLoaded', () => {
     statsContainer.innerHTML = window.Components.renderStats(estadisticas);
   }
 
+  function updateRankingFilterOptions() {
+    if (!filterRankingVideojuego) return;
+    const currentVal = filterRankingVideojuego.value;
+    filterRankingVideojuego.innerHTML = '<option value="">Todos los videojuegos</option>';
+
+    if (Array.isArray(videojuegos)) {
+      videojuegos.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v.nombre;
+        opt.textContent = v.nombre;
+        filterRankingVideojuego.appendChild(opt);
+      });
+    }
+
+    if (currentVal && videojuegos.some(v => v.nombre === currentVal)) {
+      filterRankingVideojuego.value = currentVal;
+    }
+  }
+
   function renderRankingView() {
     if (!rankingContainer || !window.Components) return;
-    rankingContainer.innerHTML = window.Components.renderRankingTable(ranking);
+
+    const selectedGame = filterRankingVideojuego?.value || '';
+    let rankingToRender = ranking;
+
+    if (selectedGame) {
+      rankingToRender = ranking
+        .filter(item => (item.videojuego || item.nombre_videojuego) === selectedGame)
+        .map((item, index) => ({
+          ...item,
+          posicion: index + 1
+        }));
+
+      if (rankingBadge) {
+        rankingBadge.textContent = selectedGame;
+      }
+    } else {
+      if (rankingBadge) {
+        rankingBadge.textContent = 'Ranking Global';
+      }
+    }
+
+    rankingContainer.innerHTML = window.Components.renderRankingTable(rankingToRender, selectedGame);
   }
 
   function renderPlayersView(listToRender) {
@@ -126,6 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderAll() {
     renderStatsView();
+    updateRankingFilterOptions();
     renderRankingView();
     renderPlayersView();
     updateScoreSelects();
@@ -202,6 +245,10 @@ document.addEventListener('DOMContentLoaded', () => {
       delete form.dataset.submitting;
     }
   }
+
+  filterRankingVideojuego?.addEventListener('change', () => {
+    renderRankingView();
+  });
 
   let searchTimer = null;
   inputSearchJugador?.addEventListener('input', () => {
