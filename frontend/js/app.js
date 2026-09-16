@@ -18,10 +18,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const closeButtons = document.querySelectorAll('.btn-close-modal');
   const cancelButtons = document.querySelectorAll('.btn-cancel-modal');
 
-  // Formularios
+  // Formularios y botones de submit
   const formJugador = document.getElementById('form-jugador');
   const formVideojuego = document.getElementById('form-videojuego');
   const formPuntuacion = document.getElementById('form-puntuacion');
+
+  const btnSubmitJugador = document.getElementById('btn-submit-jugador') || formJugador?.querySelector('button[type="submit"]');
+  const btnSubmitVideojuego = document.getElementById('btn-submit-videojuego') || formVideojuego?.querySelector('button[type="submit"]');
+  const btnSubmitPuntuacion = document.getElementById('btn-submit-puntuacion') || formPuntuacion?.querySelector('button[type="submit"]');
 
   // Campos específicos
   const selectGenero = document.getElementById('videojuego-genero');
@@ -32,7 +36,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const selectPuntuacionVideojuego = document.getElementById('puntuacion-videojuego');
   const hintPuntuacionJugador = document.getElementById('puntuacion-jugador-hint');
   const hintPuntuacionVideojuego = document.getElementById('puntuacion-videojuego-hint');
-  const btnSubmitPuntuacion = document.getElementById('btn-submit-puntuacion');
 
   // Contenedores de visualización
   const statsContainer = document.getElementById('stats-container');
@@ -131,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    if (btnSubmitPuntuacion) {
+    if (btnSubmitPuntuacion && !formPuntuacion?.dataset.submitting) {
       btnSubmitPuntuacion.disabled = (!jugadores || jugadores.length === 0 || !videojuegos || videojuegos.length === 0);
     }
   }
@@ -201,6 +204,31 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // -------------------------------------------------------------
+  // Prevención de doble envío / Clics repetidos rápidos
+  // -------------------------------------------------------------
+  async function executeFormSubmission(form, submitButton, actionCallback) {
+    if (!form || !submitButton) return;
+
+    // Si ya está en proceso de envío, ignorar clics subsecuentes
+    if (form.dataset.submitting === 'true') {
+      return;
+    }
+
+    form.dataset.submitting = 'true';
+    const originalHtml = submitButton.innerHTML;
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+
+    try {
+      await actionCallback();
+    } finally {
+      submitButton.disabled = false;
+      submitButton.innerHTML = originalHtml;
+      delete form.dataset.submitting;
+    }
+  }
+
+  // -------------------------------------------------------------
   // Búsqueda en Vivo de Jugadores (RF07)
   // -------------------------------------------------------------
   let searchTimer = null;
@@ -241,6 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const gamertag = gamertagInput?.value.trim() || '';
     const correo = correoInput?.value.trim() || '';
 
+    // Validaciones del lado del cliente
     if (!nombre || !gamertag || !correo) {
       window.showToast('Nombre, Gamertag y correo son obligatorios.', 'error');
       return;
@@ -252,21 +281,24 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // Validación preventiva de duplicado en memoria
     const existeGamertag = jugadores.some(j => j.gamertag && j.gamertag.toLowerCase() === gamertag.toLowerCase());
     if (existeGamertag) {
       window.showToast('El Gamertag ya se encuentra registrado.', 'error');
       return;
     }
 
-    try {
-      const data = await window.API.crearJugador({ nombre, gamertag, correo });
-      formJugador.reset();
-      closeModal();
-      window.showToast(data.mensaje || `Jugador ${gamertag} registrado con éxito.`, 'success');
-      await loadAllData();
-    } catch (err) {
-      window.showToast(err.message, 'error');
-    }
+    await executeFormSubmission(formJugador, btnSubmitJugador, async () => {
+      try {
+        const data = await window.API.crearJugador({ nombre, gamertag, correo });
+        formJugador.reset();
+        closeModal();
+        window.showToast(data.mensaje || `Jugador ${gamertag} registrado con éxito.`, 'success');
+        await loadAllData();
+      } catch (err) {
+        window.showToast(err.message, 'error');
+      }
+    });
   });
 
   // -------------------------------------------------------------
@@ -282,27 +314,31 @@ document.addEventListener('DOMContentLoaded', () => {
       genero = inputGeneroOtro?.value.trim() || '';
     }
 
+    // Validaciones del lado del cliente
     if (!nombre || !genero) {
       window.showToast('Nombre y género del videojuego son obligatorios.', 'error');
       return;
     }
 
+    // Validación preventiva de duplicado en memoria
     const existeVideojuego = videojuegos.some(v => v.nombre && v.nombre.toLowerCase() === nombre.toLowerCase());
     if (existeVideojuego) {
       window.showToast('Ya existe un videojuego registrado con ese nombre.', 'error');
       return;
     }
 
-    try {
-      const data = await window.API.crearVideojuego({ nombre, genero });
-      formVideojuego.reset();
-      wrapperGeneroOtro?.classList.add('hidden');
-      closeModal();
-      window.showToast(data.mensaje || `Videojuego ${nombre} registrado con éxito.`, 'success');
-      await loadAllData();
-    } catch (err) {
-      window.showToast(err.message, 'error');
-    }
+    await executeFormSubmission(formVideojuego, btnSubmitVideojuego, async () => {
+      try {
+        const data = await window.API.crearVideojuego({ nombre, genero });
+        formVideojuego.reset();
+        wrapperGeneroOtro?.classList.add('hidden');
+        closeModal();
+        window.showToast(data.mensaje || `Videojuego ${nombre} registrado con éxito.`, 'success');
+        await loadAllData();
+      } catch (err) {
+        window.showToast(err.message, 'error');
+      }
+    });
   });
 
   // -------------------------------------------------------------
@@ -315,6 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const puntuacionInput = document.getElementById('puntuacion-valor');
     const puntuacionStr = puntuacionInput?.value.trim() || '';
 
+    // Validaciones del lado del cliente
     if (!jugadorId || !videojuegoId || puntuacionStr === '') {
       window.showToast('Todos los campos son obligatorios.', 'error');
       return;
@@ -326,20 +363,22 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    try {
-      const data = await window.API.crearPuntuacion({
-        jugador_id: Number(jugadorId),
-        videojuego_id: Number(videojuegoId),
-        puntuacion: puntuacionNum
-      });
+    await executeFormSubmission(formPuntuacion, btnSubmitPuntuacion, async () => {
+      try {
+        const data = await window.API.crearPuntuacion({
+          jugador_id: Number(jugadorId),
+          videojuego_id: Number(videojuegoId),
+          puntuacion: puntuacionNum
+        });
 
-      formPuntuacion.reset();
-      closeModal();
-      window.showToast(data.mensaje || 'Puntuación registrada con éxito.', 'success');
-      await loadAllData();
-    } catch (err) {
-      window.showToast(err.message, 'error');
-    }
+        formPuntuacion.reset();
+        closeModal();
+        window.showToast(data.mensaje || 'Puntuación registrada con éxito.', 'success');
+        await loadAllData();
+      } catch (err) {
+        window.showToast(err.message, 'error');
+      }
+    });
   });
 
   // -------------------------------------------------------------
