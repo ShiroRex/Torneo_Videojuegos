@@ -8,10 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalPuntuacion = document.getElementById('modal-puntuacion');
   const allModals = [modalJugador, modalVideojuego, modalPuntuacion];
 
-  const btnOpenJugador = document.getElementById('btn-open-modal-jugador');
-  const btnOpenVideojuego = document.getElementById('btn-open-modal-videojuego');
-  const btnOpenPuntuacion = document.getElementById('btn-open-modal-puntuacion');
-  const shortcutButtons = document.querySelectorAll('[data-open-modal]');
   const closeButtons = document.querySelectorAll('.btn-close-modal');
   const cancelButtons = document.querySelectorAll('.btn-cancel-modal');
 
@@ -35,8 +31,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const statsContainer = document.getElementById('stats-container');
   const rankingContainer = document.getElementById('ranking-container');
   const playersTableContainer = document.getElementById('players-table-container');
+  const gamesTableContainer = document.getElementById('games-table-container');
   const inputSearchJugador = document.getElementById('input-search-jugador');
   const searchResultsCounter = document.getElementById('search-results-counter');
+  const gamesResultsCounter = document.getElementById('games-results-counter');
   const filterRankingVideojuego = document.getElementById('filter-ranking-videojuego');
   const rankingBadge = document.getElementById('ranking-badge');
 
@@ -128,6 +126,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function renderGamesView() {
+    if (!gamesTableContainer || !window.Components) return;
+    gamesTableContainer.innerHTML = window.Components.renderGamesTable(videojuegos);
+
+    if (gamesResultsCounter) {
+      const cantidad = Array.isArray(videojuegos) ? videojuegos.length : 0;
+      gamesResultsCounter.textContent = `${cantidad} ${cantidad === 1 ? 'título' : 'títulos'}`;
+    }
+  }
+
   function updateScoreSelects() {
     if (!selectPuntuacionJugador || !selectPuntuacionVideojuego) return;
 
@@ -171,6 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateRankingFilterOptions();
     renderRankingView();
     renderPlayersView();
+    renderGamesView();
     updateScoreSelects();
   }
 
@@ -190,16 +199,13 @@ document.addEventListener('DOMContentLoaded', () => {
     allModals.forEach(m => m?.classList.add('hidden'));
   }
 
-  btnOpenJugador?.addEventListener('click', () => openModal(modalJugador));
-  btnOpenVideojuego?.addEventListener('click', () => openModal(modalVideojuego));
-  btnOpenPuntuacion?.addEventListener('click', () => openModal(modalPuntuacion));
-
-  shortcutButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const modalId = btn.dataset.openModal;
+  document.addEventListener('click', (e) => {
+    const trigger = e.target.closest('[data-open-modal]');
+    if (trigger) {
+      const modalId = trigger.dataset.openModal;
       const targetModal = document.getElementById(modalId);
-      openModal(targetModal);
-    });
+      if (targetModal) openModal(targetModal);
+    }
   });
 
   closeButtons.forEach(btn => btn.addEventListener('click', closeModal));

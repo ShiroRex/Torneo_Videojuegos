@@ -35,6 +35,40 @@ const Components = {
     `;
   },
 
+  renderGamesTable(videojuegos) {
+    if (!videojuegos || videojuegos.length === 0) {
+      return `
+        <div class="empty-state">
+          <i class="fa-solid fa-gamepad"></i>
+          <p>No se encontraron videojuegos registrados.</p>
+        </div>
+      `;
+    }
+
+    const rows = videojuegos.map(v => `
+      <tr>
+        <td><span class="id-badge">#${v.id}</span></td>
+        <td><strong>${v.nombre}</strong></td>
+        <td><span class="genre-badge">${v.genero}</span></td>
+      </tr>
+    `).join('');
+
+    return `
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width: 80px;">ID</th>
+            <th>Videojuego</th>
+            <th>Género</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+        </tbody>
+      </table>
+    `;
+  },
+
   renderRankingTable(rankingData, filterName = '') {
     if (!rankingData || rankingData.length === 0) {
       const emptyMessage = filterName
