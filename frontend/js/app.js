@@ -1,13 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // Navegación por pestañas
   const tabButtons = document.querySelectorAll('.tab-btn');
   const tabViews = document.querySelectorAll('.tab-view');
 
+  // Modales
   const modalOverlay = document.getElementById('modal-overlay');
   const modalJugador = document.getElementById('modal-jugador');
   const modalVideojuego = document.getElementById('modal-videojuego');
   const modalPuntuacion = document.getElementById('modal-puntuacion');
   const allModals = [modalJugador, modalVideojuego, modalPuntuacion];
 
+  // Botones para abrir modales
   const btnOpenJugador = document.getElementById('btn-open-modal-jugador');
   const btnOpenVideojuego = document.getElementById('btn-open-modal-videojuego');
   const btnOpenPuntuacion = document.getElementById('btn-open-modal-puntuacion');
@@ -15,10 +18,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const closeButtons = document.querySelectorAll('.btn-close-modal');
   const cancelButtons = document.querySelectorAll('.btn-cancel-modal');
 
+  // Formularios
   const formJugador = document.getElementById('form-jugador');
   const formVideojuego = document.getElementById('form-videojuego');
   const formPuntuacion = document.getElementById('form-puntuacion');
 
+  // Campos específicos
   const selectGenero = document.getElementById('videojuego-genero');
   const wrapperGeneroOtro = document.getElementById('wrapper-genero-otro');
   const inputGeneroOtro = document.getElementById('videojuego-genero-otro');
@@ -29,16 +34,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const hintPuntuacionVideojuego = document.getElementById('puntuacion-videojuego-hint');
   const btnSubmitPuntuacion = document.getElementById('btn-submit-puntuacion');
 
+  // Contenedores de visualización
   const statsContainer = document.getElementById('stats-container');
   const rankingContainer = document.getElementById('ranking-container');
   const playersTableContainer = document.getElementById('players-table-container');
   const inputSearchJugador = document.getElementById('input-search-jugador');
   const searchResultsCounter = document.getElementById('search-results-counter');
 
+  // Estado en memoria sincronizado con MySQL
   let jugadores = [];
   let videojuegos = [];
-  let puntuaciones = [];
+  let ranking = [];
+  let estadisticas = {
+    total_jugadores: 0,
+    total_videojuegos: 0,
+    total_puntuaciones: 0,
+    puntuacion_promedio: 0
+  };
 
+  // -------------------------------------------------------------
+  // Gestión de Pestañas
+  // -------------------------------------------------------------
   function switchTab(targetTabId) {
     tabButtons.forEach(btn => {
       btn.classList.toggle('active', btn.dataset.tab === targetTabId);
@@ -56,30 +72,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  function calculateStats() {
-    const totalJugadores = jugadores.length;
-    const totalVideojuegos = videojuegos.length;
-    const totalPuntuaciones = puntuaciones.length;
-    const sumaPuntuaciones = puntuaciones.reduce((acc, curr) => acc + curr.puntuacion, 0);
-    const promedioPuntuacion = totalPuntuaciones === 0 ? '0' : (sumaPuntuaciones / totalPuntuaciones).toFixed(1);
-
-    return {
-      totalJugadores,
-      totalVideojuegos,
-      totalPuntuaciones,
-      promedioPuntuacion
-    };
-  }
-
+  // -------------------------------------------------------------
+  // Renderizado de Vistas
+  // -------------------------------------------------------------
   function renderStatsView() {
     if (!statsContainer || !window.Components) return;
-    const stats = calculateStats();
-    statsContainer.innerHTML = window.Components.renderStats(stats);
+    statsContainer.innerHTML = window.Components.renderStats(estadisticas);
   }
 
   function renderRankingView() {
     if (!rankingContainer || !window.Components) return;
-    rankingContainer.innerHTML = window.Components.renderRankingTable(puntuaciones, jugadores, videojuegos);
+    rankingContainer.innerHTML = window.Components.renderRankingTable(ranking, jugadores, videojuegos);
   }
 
   function renderPlayersView(listToRender) {
@@ -93,18 +96,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function renderAll() {
-    renderStatsView();
-    renderRankingView();
-    renderPlayersView();
-    updateScoreSelects();
-  }
-
   function updateScoreSelects() {
     if (!selectPuntuacionJugador || !selectPuntuacionVideojuego) return;
 
+    // Poblar select de jugadores
     selectPuntuacionJugador.innerHTML = '<option value="" disabled selected>Selecciona un jugador...</option>';
-    if (jugadores.length === 0) {
+    if (!jugadores || jugadores.length === 0) {
       hintPuntuacionJugador?.classList.remove('hidden');
       selectPuntuacionJugador.disabled = true;
     } else {
@@ -118,8 +115,9 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
+    // Poblar select de videojuegos
     selectPuntuacionVideojuego.innerHTML = '<option value="" disabled selected>Selecciona un videojuego...</option>';
-    if (videojuegos.length === 0) {
+    if (!videojuegos || videojuegos.length === 0) {
       hintPuntuacionVideojuego?.classList.remove('hidden');
       selectPuntuacionVideojuego.disabled = true;
     } else {
@@ -134,16 +132,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (btnSubmitPuntuacion) {
-      btnSubmitPuntuacion.disabled = (jugadores.length === 0 || videojuegos.length === 0);
+      btnSubmitPuntuacion.disabled = (!jugadores || jugadores.length === 0 || !videojuegos || videojuegos.length === 0);
     }
   }
 
+  function renderAll() {
+    renderStatsView();
+    renderRankingView();
+    renderPlayersView();
+    updateScoreSelects();
+  }
+
+  // -------------------------------------------------------------
+  // Control de Modales
+  // -------------------------------------------------------------
   function openModal(modalElement) {
     if (!modalElement || !modalOverlay) return;
     if (modalElement === modalPuntuacion) {
       updateScoreSelects();
     }
-    allModals.forEach(m => m.classList.add('hidden'));
+    allModals.forEach(m => m?.classList.add('hidden'));
     modalElement.classList.remove('hidden');
     modalOverlay.classList.remove('hidden');
   }
@@ -151,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function closeModal() {
     if (!modalOverlay) return;
     modalOverlay.classList.add('hidden');
-    allModals.forEach(m => m.classList.add('hidden'));
+    allModals.forEach(m => m?.classList.add('hidden'));
   }
 
   btnOpenJugador?.addEventListener('click', () => openModal(modalJugador));
@@ -192,35 +200,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // -------------------------------------------------------------
+  // Búsqueda en Vivo de Jugadores (RF07)
+  // -------------------------------------------------------------
   let searchTimer = null;
   inputSearchJugador?.addEventListener('input', () => {
     const query = inputSearchJugador.value.trim();
     if (!query) {
-      loadInitialData();
+      renderPlayersView(jugadores);
       return;
     }
 
     clearTimeout(searchTimer);
     searchTimer = setTimeout(async () => {
       try {
-        const res = await fetch(`http://localhost:3000/api/jugadores/buscar?q=${encodeURIComponent(query)}`);
-        if (res.ok) {
-          const data = await res.json();
-          renderPlayersView(data);
-          return;
-        }
-      } catch (err) {}
-
-      const qLower = query.toLowerCase();
-      const filtered = jugadores.filter(j => {
-        const matchNombre = j.nombre ? j.nombre.toLowerCase().includes(qLower) : false;
-        const matchGamertag = j.gamertag ? j.gamertag.toLowerCase().includes(qLower) : false;
-        return matchNombre || matchGamertag;
-      });
-      renderPlayersView(filtered);
-    }, 150);
+        const resultados = await window.API.buscarJugadores(query);
+        renderPlayersView(Array.isArray(resultados) ? resultados : []);
+      } catch (err) {
+        const qLower = query.toLowerCase();
+        const filtered = jugadores.filter(j => {
+          const matchNombre = j.nombre ? j.nombre.toLowerCase().includes(qLower) : false;
+          const matchGamertag = j.gamertag ? j.gamertag.toLowerCase().includes(qLower) : false;
+          return matchNombre || matchGamertag;
+        });
+        renderPlayersView(filtered);
+      }
+    }, 200);
   });
 
+  // -------------------------------------------------------------
+  // Registro de Jugador (RF01)
+  // -------------------------------------------------------------
   formJugador?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const nombreInput = document.getElementById('jugador-nombre');
@@ -232,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const correo = correoInput?.value.trim() || '';
 
     if (!nombre || !gamertag || !correo) {
-      window.showToast('Todos los campos son obligatorios.', 'error');
+      window.showToast('Nombre, Gamertag y correo son obligatorios.', 'error');
       return;
     }
 
@@ -242,36 +252,27 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const existeGamertag = jugadores.some(j => j.gamertag.toLowerCase() === gamertag.toLowerCase());
+    const existeGamertag = jugadores.some(j => j.gamertag && j.gamertag.toLowerCase() === gamertag.toLowerCase());
     if (existeGamertag) {
       window.showToast('El Gamertag ya se encuentra registrado.', 'error');
       return;
     }
 
     try {
-      const response = await fetch('http://localhost:3000/api/jugadores', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre, gamertag, correo })
-      });
-
-      const resData = await response.json();
-
-      if (!response.ok) {
-        window.showToast(resData.error || 'Error al registrar jugador en el servidor.', 'error');
-        return;
-      }
-
-      await loadInitialData();
+      const data = await window.API.crearJugador({ nombre, gamertag, correo });
       formJugador.reset();
       closeModal();
-      window.showToast(`Jugador ${gamertag} guardado en MySQL con éxito.`, 'success');
+      window.showToast(data.mensaje || `Jugador ${gamertag} registrado con éxito.`, 'success');
+      await loadAllData();
     } catch (err) {
-      window.showToast('Error de conexión: El backend no está encendido en http://localhost:3000. Inícialo con "node backend/index.js".', 'error');
+      window.showToast(err.message, 'error');
     }
   });
 
-  formVideojuego?.addEventListener('submit', (e) => {
+  // -------------------------------------------------------------
+  // Registro de Videojuego (RF02)
+  // -------------------------------------------------------------
+  formVideojuego?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const nombreInput = document.getElementById('videojuego-nombre');
     const nombre = nombreInput?.value.trim() || '';
@@ -286,27 +287,28 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const existeVideojuego = videojuegos.some(v => v.nombre.toLowerCase() === nombre.toLowerCase());
+    const existeVideojuego = videojuegos.some(v => v.nombre && v.nombre.toLowerCase() === nombre.toLowerCase());
     if (existeVideojuego) {
       window.showToast('Ya existe un videojuego registrado con ese nombre.', 'error');
       return;
     }
 
-    const nuevoVideojuego = {
-      id: Date.now(),
-      nombre,
-      genero
-    };
-
-    videojuegos.push(nuevoVideojuego);
-    formVideojuego.reset();
-    wrapperGeneroOtro?.classList.add('hidden');
-    closeModal();
-    window.showToast(`Videojuego ${nombre} registrado con éxito.`, 'success');
-    renderAll();
+    try {
+      const data = await window.API.crearVideojuego({ nombre, genero });
+      formVideojuego.reset();
+      wrapperGeneroOtro?.classList.add('hidden');
+      closeModal();
+      window.showToast(data.mensaje || `Videojuego ${nombre} registrado con éxito.`, 'success');
+      await loadAllData();
+    } catch (err) {
+      window.showToast(err.message, 'error');
+    }
   });
 
-  formPuntuacion?.addEventListener('submit', (e) => {
+  // -------------------------------------------------------------
+  // Registro de Puntuación (RF03, RF05)
+  // -------------------------------------------------------------
+  formPuntuacion?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const jugadorId = selectPuntuacionJugador?.value;
     const videojuegoId = selectPuntuacionVideojuego?.value;
@@ -320,65 +322,88 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const puntuacionNum = Number(puntuacionStr);
     if (isNaN(puntuacionNum) || puntuacionNum < 0) {
-      window.showToast('La puntuación no puede ser un número negativo.', 'error');
+      window.showToast('La puntuación no puede ser un valor negativo.', 'error');
       return;
     }
 
-    const jugador = jugadores.find(j => String(j.id) === String(jugadorId));
-    const videojuego = videojuegos.find(v => String(v.id) === String(videojuegoId));
+    try {
+      const data = await window.API.crearPuntuacion({
+        jugador_id: Number(jugadorId),
+        videojuego_id: Number(videojuegoId),
+        puntuacion: puntuacionNum
+      });
 
-    if (!jugador || !videojuego) {
-      window.showToast('El jugador o videojuego seleccionado no existe.', 'error');
-      return;
+      formPuntuacion.reset();
+      closeModal();
+      window.showToast(data.mensaje || 'Puntuación registrada con éxito.', 'success');
+      await loadAllData();
+    } catch (err) {
+      window.showToast(err.message, 'error');
     }
-
-    const nuevaPuntuacion = {
-      id: Date.now(),
-      jugador_id: jugador.id,
-      videojuego_id: videojuego.id,
-      gamertag: jugador.gamertag,
-      videojuego: videojuego.nombre,
-      puntuacion: puntuacionNum,
-      fecha: new Date().toISOString()
-    };
-
-    puntuaciones.push(nuevaPuntuacion);
-    formPuntuacion.reset();
-    closeModal();
-    window.showToast(`Puntuación de ${puntuacionNum} para ${jugador.gamertag} guardada con éxito.`, 'success');
-    renderAll();
   });
 
+  // -------------------------------------------------------------
+  // Sistema de Notificaciones Toast
+  // -------------------------------------------------------------
   window.showToast = function (message, type = 'info') {
     const container = document.getElementById('toast-container');
     if (!container) return;
 
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
-    toast.textContent = message;
+
+    let iconClass = 'fa-circle-info';
+    if (type === 'success') iconClass = 'fa-circle-check';
+    else if (type === 'error') iconClass = 'fa-circle-exclamation';
+
+    toast.innerHTML = `
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fa-solid ${iconClass}"></i>
+        <span>${message}</span>
+      </div>
+    `;
 
     container.appendChild(toast);
 
     setTimeout(() => {
       toast.style.opacity = '0';
       toast.style.transform = 'translateX(20px)';
-      toast.style.transition = 'all 0.2s ease-out';
-      setTimeout(() => toast.remove(), 200);
-    }, 3500);
+      toast.style.transition = 'all 0.25s ease-out';
+      setTimeout(() => toast.remove(), 250);
+    }, 4000);
   };
 
-  async function loadInitialData() {
+  // -------------------------------------------------------------
+  // Carga Global de Datos desde MySQL
+  // -------------------------------------------------------------
+  async function loadAllData() {
     try {
-      const res = await fetch('http://localhost:3000/api/jugadores');
-      if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data)) {
-          jugadores = data;
-        }
+      const [resJugadores, resVideojuegos, resRanking, resStats] = await Promise.allSettled([
+        window.API.getJugadores(),
+        window.API.getVideojuegos(),
+        window.API.getRanking(),
+        window.API.getEstadisticas()
+      ]);
+
+      if (resJugadores.status === 'fulfilled' && Array.isArray(resJugadores.value)) {
+        jugadores = resJugadores.value;
       }
-    } catch (err) {}
+      if (resVideojuegos.status === 'fulfilled' && Array.isArray(resVideojuegos.value)) {
+        videojuegos = resVideojuegos.value;
+      }
+      if (resRanking.status === 'fulfilled' && Array.isArray(resRanking.value)) {
+        ranking = resRanking.value;
+      }
+      if (resStats.status === 'fulfilled' && resStats.value) {
+        estadisticas = resStats.value;
+      }
+    } catch (err) {
+      console.error('Error al sincronizar datos con el servidor:', err);
+    }
+
     renderAll();
   }
 
-  loadInitialData();
+  // Carga inicial
+  loadAllData();
 });
