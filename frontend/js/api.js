@@ -1,12 +1,6 @@
-/**
- * Servicio de comunicación con la API del Backend (MySQL)
- */
 const API_BASE_URL = 'http://localhost:3000/api';
 
 const API = {
-  /**
-   * Helper para manejar respuestas y errores HTTP/red
-   */
   async _fetchJSON(endpoint, options = {}) {
     try {
       const res = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -27,15 +21,12 @@ const API = {
       return data;
     } catch (err) {
       if (err.name === 'TypeError' || err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
-        throw new Error('No hay conexión con el servidor. Verifica que el backend esté corriendo en http://localhost:3000');
+        throw new Error('No hay conexion con el servidor. Verifica que el backend este activo en http://localhost:3000');
       }
       throw err;
     }
   },
 
-  // ----------------------------------------
-  // Jugadores (RF01, RF04, RF07)
-  // ----------------------------------------
   async getJugadores() {
     return this._fetchJSON('/jugadores');
   },
@@ -51,9 +42,6 @@ const API = {
     return this._fetchJSON(`/jugadores/buscar?q=${encodeURIComponent(termino)}`);
   },
 
-  // ----------------------------------------
-  // Videojuegos (RF02)
-  // ----------------------------------------
   async getVideojuegos() {
     return this._fetchJSON('/videojuegos');
   },
@@ -65,9 +53,6 @@ const API = {
     });
   },
 
-  // ----------------------------------------
-  // Puntuaciones (RF03, RF05)
-  // ----------------------------------------
   async crearPuntuacion(payload) {
     return this._fetchJSON('/puntuaciones', {
       method: 'POST',
@@ -75,9 +60,6 @@ const API = {
     });
   },
 
-  // ----------------------------------------
-  // Dashboard: Ranking y Estadísticas (RF06, RF08)
-  // ----------------------------------------
   async getRanking() {
     return this._fetchJSON('/ranking');
   },

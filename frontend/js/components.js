@@ -35,7 +35,7 @@ const Components = {
     `;
   },
 
-  renderRankingTable(rankingData, jugadores = [], videojuegos = []) {
+  renderRankingTable(rankingData) {
     if (!rankingData || rankingData.length === 0) {
       return `
         <div class="empty-state">
@@ -52,20 +52,8 @@ const Components = {
       else if (posicion === 2) posClass += ' rank-2';
       else if (posicion === 3) posClass += ' rank-3';
 
-      let gamertag = item.jugador || item.gamertag;
-      if (!gamertag && item.jugador_id && Array.isArray(jugadores)) {
-        const found = jugadores.find(j => String(j.id) === String(item.jugador_id));
-        if (found) gamertag = found.gamertag;
-      }
-      if (!gamertag) gamertag = 'Desconocido';
-
-      let juegoNombre = item.videojuego || item.nombre_videojuego;
-      if (!juegoNombre && item.videojuego_id && Array.isArray(videojuegos)) {
-        const found = videojuegos.find(v => String(v.id) === String(item.videojuego_id));
-        if (found) juegoNombre = found.nombre;
-      }
-      if (!juegoNombre) juegoNombre = 'Desconocido';
-
+      const gamertag = item.jugador || item.gamertag || 'Desconocido';
+      const juegoNombre = item.videojuego || 'Desconocido';
       const puntuacion = Number(item.puntuacion) || 0;
 
       return `
@@ -96,10 +84,10 @@ const Components = {
   },
 
   renderStats(stats = {}) {
-    const totalJugadores = stats.total_jugadores ?? stats.totalJugadores ?? 0;
-    const totalVideojuegos = stats.total_videojuegos ?? stats.totalVideojuegos ?? 0;
-    const totalPuntuaciones = stats.total_puntuaciones ?? stats.totalPuntuaciones ?? 0;
-    const promedioPuntuacion = stats.puntuacion_promedio ?? stats.promedioPuntuacion ?? '0';
+    const totalJugadores = stats.total_jugadores ?? 0;
+    const totalVideojuegos = stats.total_videojuegos ?? 0;
+    const totalPuntuaciones = stats.total_puntuaciones ?? 0;
+    const promedioPuntuacion = stats.puntuacion_promedio ?? '0';
 
     return `
       <div class="stat-card">

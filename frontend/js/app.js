@@ -1,16 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // Navegación por pestañas
   const tabButtons = document.querySelectorAll('.tab-btn');
   const tabViews = document.querySelectorAll('.tab-view');
 
-  // Modales
   const modalOverlay = document.getElementById('modal-overlay');
   const modalJugador = document.getElementById('modal-jugador');
   const modalVideojuego = document.getElementById('modal-videojuego');
   const modalPuntuacion = document.getElementById('modal-puntuacion');
   const allModals = [modalJugador, modalVideojuego, modalPuntuacion];
 
-  // Botones para abrir modales
   const btnOpenJugador = document.getElementById('btn-open-modal-jugador');
   const btnOpenVideojuego = document.getElementById('btn-open-modal-videojuego');
   const btnOpenPuntuacion = document.getElementById('btn-open-modal-puntuacion');
@@ -18,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const closeButtons = document.querySelectorAll('.btn-close-modal');
   const cancelButtons = document.querySelectorAll('.btn-cancel-modal');
 
-  // Formularios y botones de submit
   const formJugador = document.getElementById('form-jugador');
   const formVideojuego = document.getElementById('form-videojuego');
   const formPuntuacion = document.getElementById('form-puntuacion');
@@ -27,7 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnSubmitVideojuego = document.getElementById('btn-submit-videojuego') || formVideojuego?.querySelector('button[type="submit"]');
   const btnSubmitPuntuacion = document.getElementById('btn-submit-puntuacion') || formPuntuacion?.querySelector('button[type="submit"]');
 
-  // Campos específicos
   const selectGenero = document.getElementById('videojuego-genero');
   const wrapperGeneroOtro = document.getElementById('wrapper-genero-otro');
   const inputGeneroOtro = document.getElementById('videojuego-genero-otro');
@@ -37,14 +32,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const hintPuntuacionJugador = document.getElementById('puntuacion-jugador-hint');
   const hintPuntuacionVideojuego = document.getElementById('puntuacion-videojuego-hint');
 
-  // Contenedores de visualización
   const statsContainer = document.getElementById('stats-container');
   const rankingContainer = document.getElementById('ranking-container');
   const playersTableContainer = document.getElementById('players-table-container');
   const inputSearchJugador = document.getElementById('input-search-jugador');
   const searchResultsCounter = document.getElementById('search-results-counter');
 
-  // Estado en memoria sincronizado con MySQL
   let jugadores = [];
   let videojuegos = [];
   let ranking = [];
@@ -55,9 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
     puntuacion_promedio: 0
   };
 
-  // -------------------------------------------------------------
-  // Gestión de Pestañas
-  // -------------------------------------------------------------
   function switchTab(targetTabId) {
     tabButtons.forEach(btn => {
       btn.classList.toggle('active', btn.dataset.tab === targetTabId);
@@ -75,9 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // -------------------------------------------------------------
-  // Renderizado de Vistas
-  // -------------------------------------------------------------
   function renderStatsView() {
     if (!statsContainer || !window.Components) return;
     statsContainer.innerHTML = window.Components.renderStats(estadisticas);
@@ -85,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderRankingView() {
     if (!rankingContainer || !window.Components) return;
-    rankingContainer.innerHTML = window.Components.renderRankingTable(ranking, jugadores, videojuegos);
+    rankingContainer.innerHTML = window.Components.renderRankingTable(ranking);
   }
 
   function renderPlayersView(listToRender) {
@@ -102,7 +89,6 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateScoreSelects() {
     if (!selectPuntuacionJugador || !selectPuntuacionVideojuego) return;
 
-    // Poblar select de jugadores
     selectPuntuacionJugador.innerHTML = '<option value="" disabled selected>Selecciona un jugador...</option>';
     if (!jugadores || jugadores.length === 0) {
       hintPuntuacionJugador?.classList.remove('hidden');
@@ -118,7 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    // Poblar select de videojuegos
     selectPuntuacionVideojuego.innerHTML = '<option value="" disabled selected>Selecciona un videojuego...</option>';
     if (!videojuegos || videojuegos.length === 0) {
       hintPuntuacionVideojuego?.classList.remove('hidden');
@@ -146,9 +131,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateScoreSelects();
   }
 
-  // -------------------------------------------------------------
-  // Control de Modales
-  // -------------------------------------------------------------
   function openModal(modalElement) {
     if (!modalElement || !modalOverlay) return;
     if (modalElement === modalPuntuacion) {
@@ -203,16 +185,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // -------------------------------------------------------------
-  // Prevención de doble envío / Clics repetidos rápidos
-  // -------------------------------------------------------------
   async function executeFormSubmission(form, submitButton, actionCallback) {
     if (!form || !submitButton) return;
-
-    // Si ya está en proceso de envío, ignorar clics subsecuentes
-    if (form.dataset.submitting === 'true') {
-      return;
-    }
+    if (form.dataset.submitting === 'true') return;
 
     form.dataset.submitting = 'true';
     const originalHtml = submitButton.innerHTML;
@@ -228,9 +203,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // -------------------------------------------------------------
-  // Búsqueda en Vivo de Jugadores (RF07)
-  // -------------------------------------------------------------
   let searchTimer = null;
   inputSearchJugador?.addEventListener('input', () => {
     const query = inputSearchJugador.value.trim();
@@ -245,20 +217,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const resultados = await window.API.buscarJugadores(query);
         renderPlayersView(Array.isArray(resultados) ? resultados : []);
       } catch (err) {
-        const qLower = query.toLowerCase();
-        const filtered = jugadores.filter(j => {
-          const matchNombre = j.nombre ? j.nombre.toLowerCase().includes(qLower) : false;
-          const matchGamertag = j.gamertag ? j.gamertag.toLowerCase().includes(qLower) : false;
-          return matchNombre || matchGamertag;
-        });
-        renderPlayersView(filtered);
+        renderPlayersView([]);
+        window.showToast(err.message, 'error');
       }
-    }, 200);
+    }, 250);
   });
 
-  // -------------------------------------------------------------
-  // Registro de Jugador (RF01)
-  // -------------------------------------------------------------
   formJugador?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const nombreInput = document.getElementById('jugador-nombre');
@@ -269,7 +233,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const gamertag = gamertagInput?.value.trim() || '';
     const correo = correoInput?.value.trim() || '';
 
-    // Validaciones del lado del cliente
     if (!nombre || !gamertag || !correo) {
       window.showToast('Nombre, Gamertag y correo son obligatorios.', 'error');
       return;
@@ -277,14 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(correo)) {
-      window.showToast('Ingresa un correo electrónico válido.', 'error');
-      return;
-    }
-
-    // Validación preventiva de duplicado en memoria
-    const existeGamertag = jugadores.some(j => j.gamertag && j.gamertag.toLowerCase() === gamertag.toLowerCase());
-    if (existeGamertag) {
-      window.showToast('El Gamertag ya se encuentra registrado.', 'error');
+      window.showToast('Ingresa un correo electronico valido.', 'error');
       return;
     }
 
@@ -293,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await window.API.crearJugador({ nombre, gamertag, correo });
         formJugador.reset();
         closeModal();
-        window.showToast(data.mensaje || `Jugador ${gamertag} registrado con éxito.`, 'success');
+        window.showToast(data.mensaje || `Jugador ${gamertag} registrado con exito.`, 'success');
         await loadAllData();
       } catch (err) {
         window.showToast(err.message, 'error');
@@ -301,9 +257,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // -------------------------------------------------------------
-  // Registro de Videojuego (RF02)
-  // -------------------------------------------------------------
   formVideojuego?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const nombreInput = document.getElementById('videojuego-nombre');
@@ -314,16 +267,8 @@ document.addEventListener('DOMContentLoaded', () => {
       genero = inputGeneroOtro?.value.trim() || '';
     }
 
-    // Validaciones del lado del cliente
     if (!nombre || !genero) {
-      window.showToast('Nombre y género del videojuego son obligatorios.', 'error');
-      return;
-    }
-
-    // Validación preventiva de duplicado en memoria
-    const existeVideojuego = videojuegos.some(v => v.nombre && v.nombre.toLowerCase() === nombre.toLowerCase());
-    if (existeVideojuego) {
-      window.showToast('Ya existe un videojuego registrado con ese nombre.', 'error');
+      window.showToast('Nombre y genero del videojuego son obligatorios.', 'error');
       return;
     }
 
@@ -333,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formVideojuego.reset();
         wrapperGeneroOtro?.classList.add('hidden');
         closeModal();
-        window.showToast(data.mensaje || `Videojuego ${nombre} registrado con éxito.`, 'success');
+        window.showToast(data.mensaje || `Videojuego ${nombre} registrado con exito.`, 'success');
         await loadAllData();
       } catch (err) {
         window.showToast(err.message, 'error');
@@ -341,9 +286,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // -------------------------------------------------------------
-  // Registro de Puntuación (RF03, RF05)
-  // -------------------------------------------------------------
   formPuntuacion?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const jugadorId = selectPuntuacionJugador?.value;
@@ -351,7 +293,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const puntuacionInput = document.getElementById('puntuacion-valor');
     const puntuacionStr = puntuacionInput?.value.trim() || '';
 
-    // Validaciones del lado del cliente
     if (!jugadorId || !videojuegoId || puntuacionStr === '') {
       window.showToast('Todos los campos son obligatorios.', 'error');
       return;
@@ -359,7 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const puntuacionNum = Number(puntuacionStr);
     if (isNaN(puntuacionNum) || puntuacionNum < 0) {
-      window.showToast('La puntuación no puede ser un valor negativo.', 'error');
+      window.showToast('La puntuacion no puede ser un valor negativo.', 'error');
       return;
     }
 
@@ -373,7 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         formPuntuacion.reset();
         closeModal();
-        window.showToast(data.mensaje || 'Puntuación registrada con éxito.', 'success');
+        window.showToast(data.mensaje || 'Puntuacion registrada con exito.', 'success');
         await loadAllData();
       } catch (err) {
         window.showToast(err.message, 'error');
@@ -381,9 +322,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // -------------------------------------------------------------
-  // Sistema de Notificaciones Toast
-  // -------------------------------------------------------------
   window.showToast = function (message, type = 'info') {
     const container = document.getElementById('toast-container');
     if (!container) return;
@@ -412,37 +350,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 4000);
   };
 
-  // -------------------------------------------------------------
-  // Carga Global de Datos desde MySQL
-  // -------------------------------------------------------------
   async function loadAllData() {
     try {
-      const [resJugadores, resVideojuegos, resRanking, resStats] = await Promise.allSettled([
+      const [resJugadores, resVideojuegos, resRanking, resStats] = await Promise.all([
         window.API.getJugadores(),
         window.API.getVideojuegos(),
         window.API.getRanking(),
         window.API.getEstadisticas()
       ]);
 
-      if (resJugadores.status === 'fulfilled' && Array.isArray(resJugadores.value)) {
-        jugadores = resJugadores.value;
-      }
-      if (resVideojuegos.status === 'fulfilled' && Array.isArray(resVideojuegos.value)) {
-        videojuegos = resVideojuegos.value;
-      }
-      if (resRanking.status === 'fulfilled' && Array.isArray(resRanking.value)) {
-        ranking = resRanking.value;
-      }
-      if (resStats.status === 'fulfilled' && resStats.value) {
-        estadisticas = resStats.value;
-      }
+      jugadores = Array.isArray(resJugadores) ? resJugadores : [];
+      videojuegos = Array.isArray(resVideojuegos) ? resVideojuegos : [];
+      ranking = Array.isArray(resRanking) ? resRanking : [];
+      estadisticas = resStats || {};
     } catch (err) {
-      console.error('Error al sincronizar datos con el servidor:', err);
+      window.showToast(err.message, 'error');
     }
 
     renderAll();
   }
 
-  // Carga inicial
   loadAllData();
 });
