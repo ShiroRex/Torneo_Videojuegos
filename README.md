@@ -30,7 +30,7 @@
 
 ## Instrucciones de Clonación del proyecto.
 ### 1. Clonar el repositorio
-* Abre tu terminal y pon el comando:
+* Abrir terminal y pon el comando:
 * ```bash
 *git clone [https://github.com/ShiroRex/Torneo_Videojuegos.git](https://github.com/ShiroRex/Torneo_Videojuegos.git)
 cd Torneo_Videojuegos
