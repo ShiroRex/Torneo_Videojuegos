@@ -53,68 +53,68 @@
 * Una vez hecho eso podremos usar la app de torneo.
 
 ### Script 
--- 1. Tabla de Jugadores 
-CREATE TABLE IF NOT EXISTS jugadores (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  nombre varchar(100) NOT NULL,
-  gamertag varchar(50) NOT NULL,
-  correo varchar(100) NOT NULL,
-  fecha_registro datetime DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  UNIQUE KEY gamertag (gamertag)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- 2. Tabla de Videojuegos 
-CREATE TABLE IF NOT EXISTS videojuegos (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  nombre varchar(100) NOT NULL,
-  genero varchar(50) NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY nombre (nombre)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- 3. Tabla de Puntuaciones 
-CREATE TABLE IF NOT EXISTS puntuaciones (
-  id int(11) NOT NULL AUTO_INCREMENT,
-  jugador_id int(11) NOT NULL,
-  videojuego_id int(11) NOT NULL,
-  puntuacion int(11) NOT NULL,
-  fecha datetime DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  KEY jugador_id (jugador_id),
-  KEY videojuego_id (videojuego_id),
-  CONSTRAINT puntuaciones_ibfk_1 FOREIGN KEY (jugador_id) REFERENCES jugadores (id) ON DELETE CASCADE,
-  CONSTRAINT puntuaciones_ibfk_2 FOREIGN KEY (videojuego_id) REFERENCES videojuegos (id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ==========================================================
--- DATOS PRUEBA
--- ==========================================================
-
--- Insertar Videojuegos iniciales
-INSERT INTO videojuegos (id, nombre, genero) VALUES
-  (1, 'League of Legends', 'MOBA'),
-  (2, 'Valorant', 'Shooter / FPS'),
-  (3, 'Street Fighter 6', 'Lucha / Fighting'),
-  (4, 'Rocket League', 'Deportes')
-ON DUPLICATE KEY UPDATE nombre = VALUES(nombre);
-
--- Insertar Jugadores iniciales
-INSERT INTO jugadores (id, nombre, gamertag, correo) VALUES
-  (1, 'David Gallardo', 'Naked', 'gal@gmaia.com'),
-  (2, 'Carlos Mendoza', 'ShadowHunter', 'carlos@correo.com'),
-  (3, 'Valeria Rios', 'Valkyrie', 'valeria@correo.com'),
-  (4, 'Mateo Gomez', 'Nexus', 'mateo@correo.com'),
-  (5, 'Sofia Castro', 'Nova', 'sofia@correo.com')
-ON DUPLICATE KEY UPDATE gamertag = VALUES(gamertag);
-
--- Insertar Puntuaciones iniciales para poblar Dashboard y Ranking
-INSERT INTO puntuaciones (id, jugador_id, videojuego_id, puntuacion) VALUES
-  (1, 1, 1, 15000),
-  (2, 2, 2, 18500),
-  (3, 3, 1, 14200),
-  (4, 4, 3, 9800),
-  (5, 5, 2, 21000),
-  (6, 1, 4, 12300),
-  (7, 2, 1, 16400)
-ON DUPLICATE KEY UPDATE puntuacion = VALUES(puntuacion);
+*-- 1. Tabla de Jugadores 
+*CREATE TABLE IF NOT EXISTS jugadores (
+*  id int(11) NOT NULL AUTO_INCREMENT,
+*  nombre varchar(100) NOT NULL,
+*  gamertag varchar(50) NOT NULL,
+*  correo varchar(100) NOT NULL,
+*  fecha_registro datetime DEFAULT CURRENT_TIMESTAMP,
+*  PRIMARY KEY (id),
+*  UNIQUE KEY gamertag (gamertag)
+*) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+*
+*-- 2. Tabla de Videojuegos 
+*CREATE TABLE IF NOT EXISTS videojuegos (
+*  id int(11) NOT NULL AUTO_INCREMENT,
+*  nombre varchar(100) NOT NULL,
+*  genero varchar(50) NOT NULL,
+*  PRIMARY KEY (id),
+*  UNIQUE KEY nombre (nombre)
+*) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+*
+*-- 3. Tabla de Puntuaciones 
+*CREATE TABLE IF NOT EXISTS puntuaciones (
+*  id int(11) NOT NULL AUTO_INCREMENT,
+*  jugador_id int(11) NOT NULL,
+*  videojuego_id int(11) NOT NULL,
+*  puntuacion int(11) NOT NULL,
+*  fecha datetime DEFAULT CURRENT_TIMESTAMP,
+*  PRIMARY KEY (id),
+*  KEY jugador_id (jugador_id),
+*  KEY videojuego_id (videojuego_id),
+*  CONSTRAINT puntuaciones_ibfk_1 FOREIGN KEY (jugador_id) REFERENCES jugadores (id) ON DELETE CASCADE,
+*  CONSTRAINT puntuaciones_ibfk_2 FOREIGN KEY (videojuego_id) REFERENCES videojuegos (id) ON DELETE CASCADE
+*) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+*
+*-- ==========================================================
+*-- DATOS PRUEBA
+*-- ==========================================================
+*
+*-- Insertar Videojuegos iniciales
+*INSERT INTO videojuegos (id, nombre, genero) VALUES
+*  (1, 'League of Legends', 'MOBA'),
+*  (2, 'Valorant', 'Shooter / FPS'),
+*  (3, 'Street Fighter 6', 'Lucha / Fighting'),
+*  (4, 'Rocket League', 'Deportes')
+*ON DUPLICATE KEY UPDATE nombre = VALUES(nombre);
+*
+*-- Insertar Jugadores iniciales
+*INSERT INTO jugadores (id, nombre, gamertag, correo) VALUES
+*  (1, 'David Gallardo', 'Naked', 'gal@gmaia.com'),
+*  (2, 'Carlos Mendoza', 'ShadowHunter', 'carlos@correo.com'),
+*  (3, 'Valeria Rios', 'Valkyrie', 'valeria@correo.com'),
+*  (4, 'Mateo Gomez', 'Nexus', 'mateo@correo.com'),
+*  (5, 'Sofia Castro', 'Nova', 'sofia@correo.com')
+*ON DUPLICATE KEY UPDATE gamertag = VALUES(gamertag);
+*
+*-- Insertar Puntuaciones iniciales para poblar Dashboard y Ranking
+*INSERT INTO puntuaciones (id, jugador_id, videojuego_id, puntuacion) VALUES
+*  (1, 1, 1, 15000),
+*  (2, 2, 2, 18500),
+*  (3, 3, 1, 14200),
+*  (4, 4, 3, 9800),
+*  (5, 5, 2, 21000),
+*  (6, 1, 4, 12300),
+*  (7, 2, 1, 16400)
+*ON DUPLICATE KEY UPDATE puntuacion = VALUES(puntuacion);
