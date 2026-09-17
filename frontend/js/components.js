@@ -120,11 +120,16 @@ const Components = {
     `;
   },
 
-  renderStats(stats = {}) {
+  renderStats(stats = {}, filterName = '') {
     const totalJugadores = stats.total_jugadores ?? 0;
     const totalVideojuegos = stats.total_videojuegos ?? 0;
     const totalPuntuaciones = stats.total_puntuaciones ?? 0;
     const promedioPuntuacion = stats.puntuacion_promedio ?? '0';
+
+    const labelJugadores = filterName ? 'Jugadores en Juego' : 'Total Jugadores';
+    const labelVideojuegos = filterName ? 'Videojuego' : 'Total Videojuegos';
+    const labelPuntuaciones = filterName ? 'Puntuaciones en Juego' : 'Puntuaciones Registradas';
+    const labelPromedio = filterName ? 'Promedio del Juego' : 'Puntuación Promedio';
 
     return `
       <div class="stat-card">
@@ -132,7 +137,7 @@ const Components = {
           <i class="fa-solid fa-users"></i>
         </div>
         <div class="stat-info">
-          <span class="stat-label">Total Jugadores</span>
+          <span class="stat-label">${labelJugadores}</span>
           <strong class="stat-value">${totalJugadores}</strong>
         </div>
       </div>
@@ -142,7 +147,7 @@ const Components = {
           <i class="fa-solid fa-gamepad"></i>
         </div>
         <div class="stat-info">
-          <span class="stat-label">Total Videojuegos</span>
+          <span class="stat-label">${labelVideojuegos}</span>
           <strong class="stat-value">${totalVideojuegos}</strong>
         </div>
       </div>
@@ -152,7 +157,7 @@ const Components = {
           <i class="fa-solid fa-award"></i>
         </div>
         <div class="stat-info">
-          <span class="stat-label">Puntuaciones Registradas</span>
+          <span class="stat-label">${labelPuntuaciones}</span>
           <strong class="stat-value">${totalPuntuaciones}</strong>
         </div>
       </div>
@@ -162,7 +167,7 @@ const Components = {
           <i class="fa-solid fa-chart-line"></i>
         </div>
         <div class="stat-info">
-          <span class="stat-label">Puntuación Promedio</span>
+          <span class="stat-label">${labelPromedio}</span>
           <strong class="stat-value">${promedioPuntuacion}</strong>
         </div>
       </div>

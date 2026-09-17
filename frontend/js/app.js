@@ -67,7 +67,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderStatsView() {
     if (!statsContainer || !window.Components) return;
-    statsContainer.innerHTML = window.Components.renderStats(estadisticas);
+
+    const selectedGame = filterRankingVideojuego?.value || '';
+
+    if (!selectedGame) {
+      statsContainer.innerHTML = window.Components.renderStats(estadisticas);
+      return;
+    }
+
+    const puntuacionesJuego = (ranking || []).filter(
+      item => (item.videojuego || item.nombre_videojuego) === selectedGame
+    );
+
+    const jugadoresUnicos = new Set(
+      puntuacionesJuego.map(item => item.jugador || item.gamertag)
+    );
+
+    const totalJugadores = jugadoresUnicos.size;
+    const totalVideojuegos = 1;
+    const totalPuntuaciones = puntuacionesJuego.length;
+
+    let promedioPuntuacion = '0.00';
+    if (totalPuntuaciones > 0) {
+      const suma = puntuacionesJuego.reduce(
+        (acc, item) => acc + (Number(item.puntuacion) || 0),
+        0
+      );
+      promedioPuntuacion = (suma / totalPuntuaciones).toFixed(2);
+    }
+
+    const filteredStats = {
+      total_jugadores: totalJugadores,
+      total_videojuegos: totalVideojuegos,
+      total_puntuaciones: totalPuntuaciones,
+      puntuacion_promedio: promedioPuntuacion
+    };
+
+    statsContainer.innerHTML = window.Components.renderStats(filteredStats, selectedGame);
   }
 
   function updateRankingFilterOptions() {
@@ -253,6 +289,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   filterRankingVideojuego?.addEventListener('change', () => {
+    renderStatsView();
     renderRankingView();
   });
 
