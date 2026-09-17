@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="UTorneos - Plataforma de gestión de torneos de videojuegos, jugadores, puntuaciones y clasificaciones.">
+  <meta name="description"
+    content="UTorneos - Plataforma de gestión de torneos de videojuegos, jugadores, puntuaciones y clasificaciones.">
   <title>UTorneos</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/styles.css">
 </head>
+
 <body>
   <div id="toast-container" class="toast-container" aria-live="polite"></div>
 
@@ -50,7 +55,8 @@
             <span class="badge" id="ranking-badge">Ranking Global</span>
           </div>
           <div class="ranking-filter-wrapper">
-            <label for="filter-ranking-videojuego" class="filter-label"><i class="fa-solid fa-filter"></i> Filtrar:</label>
+            <label for="filter-ranking-videojuego" class="filter-label"><i class="fa-solid fa-filter"></i>
+              Filtrar:</label>
             <select id="filter-ranking-videojuego" class="select-control select-sm">
               <option value="">Todos los videojuegos</option>
             </select>
@@ -76,7 +82,8 @@
           <div class="toolbar-left">
             <div class="search-wrapper">
               <i class="fa-solid fa-magnifying-glass search-icon"></i>
-              <input type="text" id="input-search-jugador" class="input-control" placeholder="Buscar por Nombre o Gamertag...">
+              <input type="text" id="input-search-jugador" class="input-control"
+                placeholder="Buscar por Nombre o Gamertag..." maxlength="50">
             </div>
             <span id="search-results-counter" class="counter-label">0 resultados</span>
           </div>
@@ -103,7 +110,8 @@
   </main>
 
   <div id="modal-overlay" class="modal-overlay hidden">
-    <div id="modal-jugador" class="modal-dialog hidden" role="dialog" aria-labelledby="modal-jugador-title" aria-modal="true">
+    <div id="modal-jugador" class="modal-dialog hidden" role="dialog" aria-labelledby="modal-jugador-title"
+      aria-modal="true">
       <div class="modal-header">
         <h3 id="modal-jugador-title">Registrar Jugador</h3>
         <button type="button" class="btn-close-modal" aria-label="Cerrar modal">
@@ -114,15 +122,18 @@
         <form id="form-jugador" class="modal-form" novalidate>
           <div class="form-group">
             <label for="jugador-nombre" class="form-label">Nombre Completo <span class="required">*</span></label>
-            <input type="text" id="jugador-nombre" name="nombre" class="input-control" placeholder="Ej. Juan Pérez" maxlength="100" required>
+            <input type="text" id="jugador-nombre" name="nombre" class="input-control" placeholder="Ej. Juan Pérez"
+              minlength="2" maxlength="40" required>
           </div>
           <div class="form-group">
             <label for="jugador-gamertag" class="form-label">Gamertag o Alias <span class="required">*</span></label>
-            <input type="text" id="jugador-gamertag" name="gamertag" class="input-control" placeholder="Ej. ShadowHunter" maxlength="50" required>
+            <input type="text" id="jugador-gamertag" name="gamertag" class="input-control"
+              placeholder="Ej. ShadowHunter" minlength="3" maxlength="20" required>
           </div>
           <div class="form-group">
             <label for="jugador-correo" class="form-label">Correo Electrónico <span class="required">*</span></label>
-            <input type="email" id="jugador-correo" name="correo" class="input-control" placeholder="Ej. juan@correo.com" maxlength="100" required>
+            <input type="email" id="jugador-correo" name="correo" class="input-control"
+              placeholder="Ej. juan@correo.com" maxlength="60" required>
           </div>
           <div class="form-actions">
             <button type="button" class="btn btn-secondary btn-cancel-modal">Cancelar</button>
@@ -132,7 +143,8 @@
       </div>
     </div>
 
-    <div id="modal-videojuego" class="modal-dialog hidden" role="dialog" aria-labelledby="modal-videojuego-title" aria-modal="true">
+    <div id="modal-videojuego" class="modal-dialog hidden" role="dialog" aria-labelledby="modal-videojuego-title"
+      aria-modal="true">
       <div class="modal-header">
         <h3 id="modal-videojuego-title">Registrar Videojuego</h3>
         <button type="button" class="btn-close-modal" aria-label="Cerrar modal">
@@ -142,8 +154,10 @@
       <div class="modal-body">
         <form id="form-videojuego" class="modal-form" novalidate>
           <div class="form-group">
-            <label for="videojuego-nombre" class="form-label">Nombre del Videojuego <span class="required">*</span></label>
-            <input type="text" id="videojuego-nombre" name="nombre" class="input-control" placeholder="Ej. League of Legends" maxlength="100" required>
+            <label for="videojuego-nombre" class="form-label">Nombre del Videojuego <span
+                class="required">*</span></label>
+            <input type="text" id="videojuego-nombre" name="nombre" class="input-control"
+              placeholder="Ej. League of Legends" minlength="2" maxlength="50" required>
           </div>
           <div class="form-group">
             <label for="videojuego-genero" class="form-label">Género <span class="required">*</span></label>
@@ -160,8 +174,10 @@
             </select>
           </div>
           <div id="wrapper-genero-otro" class="form-group hidden">
-            <label for="videojuego-genero-otro" class="form-label">Especifica el Género <span class="required">*</span></label>
-            <input type="text" id="videojuego-genero-otro" name="genero_otro" class="input-control" placeholder="Ej. Sandbox, RPG, etc." maxlength="50">
+            <label for="videojuego-genero-otro" class="form-label">Especifica el Género <span
+                class="required">*</span></label>
+            <input type="text" id="videojuego-genero-otro" name="genero_otro" class="input-control"
+              placeholder="Ej. Sandbox, RPG, etc." maxlength="30">
           </div>
           <div class="form-actions">
             <button type="button" class="btn btn-secondary btn-cancel-modal">Cancelar</button>
@@ -171,7 +187,8 @@
       </div>
     </div>
 
-    <div id="modal-puntuacion" class="modal-dialog hidden" role="dialog" aria-labelledby="modal-puntuacion-title" aria-modal="true">
+    <div id="modal-puntuacion" class="modal-dialog hidden" role="dialog" aria-labelledby="modal-puntuacion-title"
+      aria-modal="true">
       <div class="modal-header">
         <h3 id="modal-puntuacion-title">Registrar Puntuación</h3>
         <button type="button" class="btn-close-modal" aria-label="Cerrar modal">
@@ -185,19 +202,22 @@
             <select id="puntuacion-jugador" name="jugador_id" class="select-control" required>
               <option value="" disabled selected>Selecciona un jugador...</option>
             </select>
-            <span id="puntuacion-jugador-hint" class="field-hint hidden">No hay jugadores registrados. Registra uno primero.</span>
+            <span id="puntuacion-jugador-hint" class="field-hint hidden">No hay jugadores registrados. Registra uno
+              primero.</span>
           </div>
           <div class="form-group">
             <label for="puntuacion-videojuego" class="form-label">Videojuego <span class="required">*</span></label>
             <select id="puntuacion-videojuego" name="videojuego_id" class="select-control" required>
               <option value="" disabled selected>Selecciona un videojuego...</option>
             </select>
-            <span id="puntuacion-videojuego-hint" class="field-hint hidden">No hay videojuegos registrados. Registra uno primero.</span>
+            <span id="puntuacion-videojuego-hint" class="field-hint hidden">No hay videojuegos registrados. Registra uno
+              primero.</span>
           </div>
           <div class="form-group">
             <label for="puntuacion-valor" class="form-label">Puntuación Obtenida <span class="required">*</span></label>
-            <input type="number" id="puntuacion-valor" name="puntuacion" class="input-control" placeholder="Ej. 1250" min="0" step="1" required>
-            <span class="field-hint">La puntuación no puede ser un valor negativo.</span>
+            <input type="number" id="puntuacion-valor" name="puntuacion" class="input-control" placeholder="Ej. 1250"
+              min="0" max="999999999" step="1" required>
+            <span class="field-hint">Número entero entre 0 y 999,999,999.</span>
           </div>
           <div class="form-actions">
             <button type="button" class="btn btn-secondary btn-cancel-modal">Cancelar</button>
@@ -216,4 +236,5 @@
   <script src="js/components.js"></script>
   <script src="js/app.js"></script>
 </body>
+
 </html>

@@ -291,6 +291,21 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    if (nombre.length < 2 || nombre.length > 40) {
+      window.showToast('El nombre debe tener entre 2 y 40 caracteres.', 'error');
+      return;
+    }
+
+    if (gamertag.length < 3 || gamertag.length > 20) {
+      window.showToast('El Gamertag debe tener entre 3 y 20 caracteres.', 'error');
+      return;
+    }
+
+    if (correo.length > 60) {
+      window.showToast('El correo no debe superar los 60 caracteres.', 'error');
+      return;
+    }
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(correo)) {
       window.showToast('Ingresa un correo electronico valido.', 'error');
@@ -325,6 +340,16 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    if (nombre.length < 2 || nombre.length > 50) {
+      window.showToast('El nombre del videojuego debe tener entre 2 y 50 caracteres.', 'error');
+      return;
+    }
+
+    if (genero.length > 30) {
+      window.showToast('El genero no debe superar los 30 caracteres.', 'error');
+      return;
+    }
+
     await executeFormSubmission(formVideojuego, btnSubmitVideojuego, async () => {
       try {
         const data = await window.API.crearVideojuego({ nombre, genero });
@@ -354,6 +379,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const puntuacionNum = Number(puntuacionStr);
     if (isNaN(puntuacionNum) || puntuacionNum < 0) {
       window.showToast('La puntuacion no puede ser un valor negativo.', 'error');
+      return;
+    }
+
+    if (!Number.isInteger(puntuacionNum)) {
+      window.showToast('La puntuacion debe ser un numero entero.', 'error');
+      return;
+    }
+
+    if (puntuacionNum > 999999999) {
+      window.showToast('La puntuacion maxima permitida es 999,999,999.', 'error');
       return;
     }
 
